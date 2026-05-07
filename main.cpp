@@ -5,8 +5,9 @@
 int main();
 int menuSelecaoCurso(int cursoSelecionado);
 int cursosDisponiveis();
+int cadastroAluno();
 
-int main(){
+int main(){ // MENU PRINCIPAL - INICIAL
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     int escolhaMenu;
@@ -22,6 +23,7 @@ int main(){
                 cursosDisponiveis();
                 return 1;
             case 2:
+                cadastroAluno();
                 return 2;
             case 0:
                 std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
@@ -33,7 +35,7 @@ int main(){
     }while(true);
 }
 
-int cursosDisponiveis(){
+int cursosDisponiveis(){ // MENU COM OS CURSOS
     int escolhaMenuCursos;
 
     do{
@@ -120,10 +122,20 @@ int cursosDisponiveis(){
     return 0;
 }
 
-int menuSelecaoCurso(int cursoSelecionado){
+int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO CURSO
     int escolhaMenuSelecao;
 
-    cursoSelecionado + 1;
+    int valoresCurso[7];
+    valoresCurso[0] = 14405.49;
+    valoresCurso[1] = 15278.00;
+    valoresCurso[2] = 14844.79;
+    valoresCurso[3] = 3355.00;
+    valoresCurso[4] = 3751.00;
+    valoresCurso[5] = 3355.00;
+    valoresCurso[6] = 3157.00;
+
+    valoresCurso[(cursoSelecionado - 1)]; // usar para puxar o valor, provavelmente levar esse dado para a matricula do curso
+
     do{
         std::cout<<"Escolha uma das opções abaixo para continuar"<<std::endl;
         std::cout<<"1 - Se matricular no curso"<<std::endl;
@@ -153,4 +165,34 @@ int menuSelecaoCurso(int cursoSelecionado){
     }while(true);
 
     return 0;
+}
+
+int cadastroAluno(){ //CADASTRO DO ALUNO
+
+    bool cadastroConcluido = false; // Verificador se usuario já cadastrado
+
+    std::string nomeCompletoAluno;
+    std::string enderecoAluno[4]; // Juntar todos os pedaços do endereço
+    std::string ruaEnderecoAluno;
+    std::string numeroEnderecoAluno;
+    std::string cepEnderecoAluno;
+    std::string complementoEnderecoAluno;
+    std::string alunoCPF;
+    std::string alunoRG;
+    std::string alunoEmail;
+    std::string dataNascimentoAluno; // Lembrar de pegar os 4 ultimos digitos e forçar de que os 4 ultimos digitos devem ser um ano
+    bool responsavelFinanAluno;
+
+    std::string nomeCompletoResponsavel;
+    std::string enderecoResponsavel[4];
+    std::string ruaEnderecoResponsavel;
+    std::string cepEnderecoResponsavel;
+    std::string complementoEnderecoResponsavel;
+    std::string responsavelCPF;
+    std::string responsavelRG;
+    std::string responsavelEmail;
+    std::string dataNascimentoResponsavel;
+
+    return 0;
+
 }
