@@ -5,7 +5,37 @@
 int main();
 int menuSelecaoCurso(int cursoSelecionado);
 int cursosDisponiveis();
-int cadastroAluno();
+int menuCadastro();
+int cadastrar();
+
+struct Pessoa {
+    std::string nomeCompleto;
+    std::string cpf;
+    std::string rg;
+    std::string email;
+    std::string dataNascimento; // Lembrar de pegar os 4 ultimos digitos e forçar de que os 4 ultimos digitos devem ser um ano
+
+};
+
+struct Endereco {
+    std::string rua;
+    std::string numero;
+    std::string cep;
+    std::string complemento;
+};
+
+struct Cadastro {
+    std::string usuario;
+    std::string senha;
+
+    Pessoa dadosAluno;
+    Endereco enderecoAluno;
+
+    char responsavelFinanAluno; // S/N
+
+    Pessoa dadosResponsavel;
+    Endereco enderecoResponsavel;
+};
 
 int main(){ // MENU PRINCIPAL - INICIAL
     SetConsoleOutputCP(CP_UTF8);
@@ -23,7 +53,7 @@ int main(){ // MENU PRINCIPAL - INICIAL
                 cursosDisponiveis();
                 return 1;
             case 2:
-                cadastroAluno();
+                menuCadastro();
                 return 2;
             case 0:
                 std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
@@ -167,32 +197,57 @@ int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO 
     return 0;
 }
 
-int cadastroAluno(){ //CADASTRO DO ALUNO
+int menuCadastro(){ //CADASTRO DO ALUNO
 
-    bool cadastroConcluido = false; // Verificador se usuario já cadastrado
+    //bool cadastroConcluido = false; // Verificador se usuario já cadastrado
 
-    std::string nomeCompletoAluno;
-    std::string enderecoAluno[4]; // Juntar todos os pedaços do endereço
-    std::string ruaEnderecoAluno;
-    std::string numeroEnderecoAluno;
-    std::string cepEnderecoAluno;
-    std::string complementoEnderecoAluno;
-    std::string alunoCPF;
-    std::string alunoRG;
-    std::string alunoEmail;
-    std::string dataNascimentoAluno; // Lembrar de pegar os 4 ultimos digitos e forçar de que os 4 ultimos digitos devem ser um ano
-    bool responsavelFinanAluno;
+    int escolhaCadastro;
 
-    std::string nomeCompletoResponsavel;
-    std::string enderecoResponsavel[4];
-    std::string ruaEnderecoResponsavel;
-    std::string cepEnderecoResponsavel;
-    std::string complementoEnderecoResponsavel;
-    std::string responsavelCPF;
-    std::string responsavelRG;
-    std::string responsavelEmail;
-    std::string dataNascimentoResponsavel;
+    do{
+        std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+        std::cout<<"Selecione a opção desejada abaixo."<<std::endl;
+        std::cout<<"1 - Cadastrar"<<std::endl;
+        std::cout<<"2 - Logar"<<std::endl;
+        std::cout<<"9 - Menu Principal"<<std::endl;
+        std::cout<<"0 - Sair"<<std::endl;
+        std::cin>>escolhaCadastro;
+
+        switch (escolhaCadastro){
+            case 1:
+                cadastrar();
+                return 1;
+            case 2:
+                //logar();
+                return 2;
+            case 9:
+                main();
+                return 9;
+            case 0:
+                std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
+                return 0;
+            default:
+                std::cout<<"Número Inválido!"<<std::endl;
+                break;
+        }
+    }while(true);
 
     return 0;
 
+}
+
+int cadastrar(){
+
+    Cadastro novoCadastro;
+
+    std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+    std::cout<<"Olá! Vamos seguir com o seu cadastro!"<<std::endl;
+    std::cout<<"Por favor, informe o seu nome completo:"<<std::endl;
+    std::getline(std::cin>>std::ws, novoCadastro.dadosAluno.nomeCompleto);
+
+    std::string nomeCompleto = novoCadastro.dadosAluno.nomeCompleto;
+    size_t posEspaco = nomeCompleto.find(' '); // descobre o primeiro espaço
+    std::string primeiroNome = nomeCompleto.substr(0, posEspaco); // recorta o resto da string, ficando somente antes da posição do espaço
+    std::cout<<primeiroNome<<", para continuar, vou precisar do seu CPF!"<<std::endl;
+
+    return 0;
 }
