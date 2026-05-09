@@ -10,6 +10,7 @@ int menuCadastro();
 int cadastrarAluno();
 std::string limparCPF(std::string cpf);
 bool validadorCPF(std::string cpfLimpo);
+bool validadorEmail(std::string email);
 // iniciando as funções aqui em cima para não dar erro de escopo depois
 
 struct Pessoa {
@@ -40,8 +41,6 @@ struct Cadastro {
     Pessoa dadosResponsavel;
     Endereco enderecoResponsavel;
 };
-
-// por algum motivo, 1° structs, depois funções
 
 int main(){ // MENU PRINCIPAL - INICIAL
     SetConsoleOutputCP(CP_UTF8);
@@ -278,6 +277,21 @@ bool validadorCPF(std::string cpfLimpo){
 
 }
 
+bool validadorEmail(std::string email){
+    
+    size_t posicaoArroba = email.find('@'); // size_t pois não sabemos o tamanho do e_mail, dependendo da situação, o int não vai guardar a posição, então, encontramos o @ e a pos dele
+    size_t posicaoPonto = email.find('.', posicaoArroba); // aqui pedimos para ele encontrar um "ponto", mas que procure após a posição do arroba
+
+    if(posicaoArroba != std::string::npos &&    // Verifica se posição do arroba existe na string (npos diz que não existe, mas aqui to pedindo !=)
+        posicaoArroba > 0 &&                    // Verficia se o "@" não é o primeiro caracter
+        posicaoPonto != std::string::npos &&    // mesma coisa, verifica se o ponto existe
+        posicaoPonto < (email.length() - 1)){   // Verifica se o "."" não é o ultimo caracter
+            return true;                        // Se tudo der certo, retorna que esta validado
+        }
+
+    return false;
+}
+
 int menuCadastro(){ //CADASTRO DO ALUNO
 
     //bool cadastroConcluido = false; // Verificador se usuario já cadastrado
@@ -322,6 +336,7 @@ int cadastrarAluno(){
     std::string cpfDigitado; // vamos usar esse carinha aqui para verificar se o CPF digitado é valido antes de levar pro cadastro
     bool cpfValido = false; // esse vai ser o nosso validador final, esperamos que ele retorne com um true para continuar o restante do código
     bool rgVazio = false;
+    bool emailValido = false;
 
 
     std::cout<<"------------------------------------------------------------------------------"<<std::endl;
@@ -368,6 +383,23 @@ int cadastrarAluno(){
         }
     }while(!rgVazio);
 
+    // CADASTRAR EMAIL
+
+    do{
+
+        std::cout<<"Insira seu e-mail para o cadastro: "<<std::endl;
+        std::getline(std::cin>>std::ws, novoCadastro.dadosAluno.email);
+
+        if(novoCadastro.dadosAluno.email.empty()){
+            std::cout<<"Seu e-mail não poode ficar vazio!"<<std::endl;
+        }else if(validadorEmail(novoCadastro.dadosAluno.email)){
+            std::cout<<"E-mail registrado!"<<std::endl;
+            emailValido = true;
+        }else{
+            std::cout<<"E-mail invalido! (Ex: usuario@gmail.com)"<<std::endl;
+        }
+
+    }while(!emailValido);
     
 
 
