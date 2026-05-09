@@ -1,12 +1,16 @@
 #include<iostream>
 #include<string>
 #include<windows.h>
+#include<cctype> // biblioteca com funções úteis para tratar caracteres individuais
 
 int main();
 int menuSelecaoCurso(int cursoSelecionado);
 int cursosDisponiveis();
 int menuCadastro();
 int cadastrar();
+std::string limparCPF(std::string cpf);
+bool validadorCPF(std::string cpfLimpo);
+// iniciando as funções aqui em cima para não dar erro de escopo depois
 
 struct Pessoa {
     std::string nomeCompleto;
@@ -36,6 +40,8 @@ struct Cadastro {
     Pessoa dadosResponsavel;
     Endereco enderecoResponsavel;
 };
+
+// por algum motivo, 1° structs, depois funções
 
 int main(){ // MENU PRINCIPAL - INICIAL
     SetConsoleOutputCP(CP_UTF8);
@@ -155,7 +161,7 @@ int cursosDisponiveis(){ // MENU COM OS CURSOS
 int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO CURSO
     int escolhaMenuSelecao;
 
-    int valoresCurso[7];
+    float valoresCurso[7];
     valoresCurso[0] = 14405.49;
     valoresCurso[1] = 15278.00;
     valoresCurso[2] = 14844.79;
@@ -195,6 +201,40 @@ int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO 
     }while(true);
 
     return 0;
+}
+
+std::string limparCPF(std::string cpf){ // o tal do limpas, vamos usar isso aqui com a biblioteca cctype para limpar os espaços, pontos, vírgulas ou qualquer caracter que não for um numeral
+    
+    std::string apenasNumeros = ""; // variavel vazia para armazenar os números limpos
+
+    for (char c : cpf){ // para cada caracter C em cpf, verificar se é um digito númerico, se for, guardar esse dígito dentro da var apenasNumeros, no final, retornar esses números
+        if (isdigit(c)){
+            apenasNumeros += c;
+        }
+    }
+    return apenasNumeros;
+}
+
+bool validadorCPF(std::string cpfLimpo){
+
+    if(cpfLimpo.length() != 11){ 
+        return false;
+    }
+
+    bool repetido = true;
+    for(int i = 1; i < 11; i++){ // verificar se todos os digitos de são iguais (se o i é diferente do primeiro numero, retorna falso, quer dizer que pode ser um cpf valido)
+        if(cpfLimpo[i] != cpfLimpo[0]){
+            repetido = false;
+            break;
+        }
+    }
+    
+    if(repetido == true){
+        return false;
+    } 
+
+    return true;
+
 }
 
 int menuCadastro(){ //CADASTRO DO ALUNO
@@ -238,6 +278,8 @@ int menuCadastro(){ //CADASTRO DO ALUNO
 int cadastrar(){
 
     Cadastro novoCadastro;
+    std::string cpfDigitado; // vamos usar esse carinha aqui para verificar se o CPF digitado é valido antes de levar pro cadastro
+    bool cpfValido = false; // esse vai ser o nosso validador final, esperamos que ele retorne com um true para continuar o restante do código
 
     std::cout<<"------------------------------------------------------------------------------"<<std::endl;
     std::cout<<"Olá! Vamos seguir com o seu cadastro!"<<std::endl;
@@ -247,7 +289,25 @@ int cadastrar(){
     std::string nomeCompleto = novoCadastro.dadosAluno.nomeCompleto;
     size_t posEspaco = nomeCompleto.find(' '); // descobre o primeiro espaço
     std::string primeiroNome = nomeCompleto.substr(0, posEspaco); // recorta o resto da string, ficando somente antes da posição do espaço
-    std::cout<<primeiroNome<<", para continuar, vou precisar do seu CPF!"<<std::endl;
+
+    // ACIMA, NOME, ABAIXO, CPF
+
+    do{ // usar um loop do:while para manter o usuário no loop enquanto cpf não for valido
+
+        std::cout<<primeiroNome<<", para continuar, vou precisar do seu CPF! Por favor, informe o seu CPF (apenas números ou com ponto/traço): "<<std::endl;
+        std::getline(std::cin>>std::ws, cpfDigitado); // usando getline para caso de digitar 000 000 000 00
+
+        std::string cpfLimpo = limparCPF(cpfDigitado); // beleza, criamos uma variavel chamada de cpfLimpo, que vai receber o cpf tratador na função limparCPF
+
+        if(validadorCPF(cpfLimpo) == true){
+            novoCadastro.dadosAluno.cpf = cpfLimpo;
+            cpfValido = true;
+            std::cout<<"CPF Validado com sucesso!"<<std::endl;
+        }else{
+            std::cout<<"CPF Inválido, tente novamente."<<std::endl;
+        }
+    }while(!cpfValido);
+
 
     return 0;
 }
