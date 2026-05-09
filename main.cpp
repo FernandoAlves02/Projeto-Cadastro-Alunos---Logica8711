@@ -9,6 +9,7 @@ int menuSelecaoCurso(int cursoSelecionado);
 int cursosDisponiveis();
 int menuCadastro();
 int cadastrarAluno();
+int cadastrarEnderecoAluno();
 std::string limparString(std::string cpf);
 bool validadorCPF(std::string cpfLimpo);
 bool validadorEmail(std::string email);
@@ -43,6 +44,112 @@ struct Cadastro {
 
     Pessoa dadosResponsavel;
     Endereco enderecoResponsavel;
+};
+
+struct Pessoa cadastrarPessoa(std::string tipoPessoa){
+    Pessoa p;
+
+    std::string cpfDigitado; // vamos usar esse carinha aqui para verificar se o CPF digitado é valido antes de levar pro cadastro
+    bool valido = false; // esse vai ser o nosso validador final, esperamos que ele retorne com um true para continuar o restante do código
+
+    // CADASTRO NOME
+    do{
+        std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+        std::cout<<"Olá! Vamos seguir com o cadastro do "<<tipoPessoa<<"!"<<std::endl;
+        std::cout<<"Por favor, informe o seu nome completo:"<<std::endl;
+        std::getline(std::cin>>std::ws, p.nomeCompleto);
+
+        if(p.nomeCompleto.empty()){
+            std::cout<<"Seu nome não pode ficar vazio!"<<std::endl;
+        }else{
+            std::cout<<"Nome registrado com sucesso!"<<std::endl;
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+            valido = true;
+        }
+    }while(!valido);
+    std::string nomeCompleto = p.nomeCompleto;
+    size_t posEspaco = nomeCompleto.find(' '); // descobre o primeiro espaço
+    std::string primeiroNome = nomeCompleto.substr(0, posEspaco); // recorta o resto da string, ficando somente antes da posição do espaço
+
+    
+    // CADASTRO CPF
+    valido = false;
+    do{ 
+
+        std::cout<<primeiroNome<<", para continuar, vou precisar do seu CPF! Por favor, informe o seu CPF (apenas números ou com ponto/traço): "<<std::endl;
+        std::getline(std::cin>>std::ws, cpfDigitado); // usando getline para caso de digitar 000 000 000 00
+
+        std::string cpfLimpo = limparString(cpfDigitado); // beleza, criamos uma variavel chamada de cpfLimpo, que vai receber o cpf tratado na função limparString
+
+        if(validadorCPF(cpfLimpo) == true){
+            p.cpf = cpfLimpo;
+            valido = true;
+            std::cout<<"CPF Validado e cadastrado com sucesso!"<<std::endl;            
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+        }else{
+            std::cout<<"CPF Inválido, tente novamente."<<std::endl;
+        }
+    }while(!valido);
+
+    // CADASTRAR RG
+    valido = false;
+    do{
+        
+        std::cout<<"Vou precisar do seu RG agora: "<<std::endl;
+        std::getline(std::cin>>std::ws, p.rg);
+
+        if(p.rg.empty()){
+            std::cout<<"Seu RG não pode ficar vazio!"<<std::endl;
+        }else if(p.rg.length() < 7 || p.rg.length() > 9){
+            std::cout<<"RG inválido! Tente novamente."<<std::endl;
+        }else{
+            std::cout<<"RG Cadastrado com sucesso!"<<std::endl;
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+            valido = true;
+        }
+    }while(!valido);
+
+    // CADASTRAR EMAIL
+
+    valido = false;
+    do{
+
+        std::cout<<"Insira seu e-mail para o cadastro: "<<std::endl;
+        std::getline(std::cin>>std::ws, p.email);
+
+        if(p.email.empty()){
+            std::cout<<"Seu e-mail não poode ficar vazio!"<<std::endl;
+        }else if(validadorEmail(p.email)){
+            std::cout<<"E-mail registrado com sucesso!"<<std::endl;
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+            valido = true;
+        }else{
+            std::cout<<"E-mail invalido! (Ex: usuario@gmail.com)"<<std::endl;
+        }
+    }while(!valido);
+    
+    // CADASTRAR DATA DE NASCIMENTO
+
+    do{
+
+        std::cout<<"Informe sua data de nascimento para continuar: (dd/mm/aaaa)"<<std::endl;
+        std::getline(std::cin>>std::ws, p.dataNascimento);
+        std::string dataNascimentoLimpa = limparString(p.dataNascimento);
+
+        if(p.dataNascimento.empty()){
+            std::cout<<"Sua data de nascimento não pode ficar vazia!"<<std::endl;
+        }else if(dataNascimentoLimpa.length() != 8){
+            std::cout<<"Data de Nascimento não pode ser menor/maior que 8 digitos (00/00/0000)"<<std::endl;
+        }else if(validadorDataNascimento(dataNascimentoLimpa)){
+            std::cout<<"Sua data de nascimento foi cadastrada com sucesso!"<<std::endl;
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+            valido = true;
+        }else{
+            std::cout<<"Data de Nascimento inválida (dd/mm/aaa)"<<std::endl;
+        }
+    }while(!valido);
+
+    return p;
 };
 
 std::string limparString(std::string stringSuja){ // o tal do limpas, vamos usar isso aqui com a biblioteca cctype para limpar os espaços, pontos, vírgulas ou qualquer caracter que não for um numeral
@@ -362,108 +469,9 @@ int menuCadastro(){ //CADASTRO DO ALUNO
 int cadastrarAluno(){
 
     Cadastro novoCadastro;
-    bool nomePreenchido = false;
-    std::string cpfDigitado; // vamos usar esse carinha aqui para verificar se o CPF digitado é valido antes de levar pro cadastro
-    bool cpfValido = false; // esse vai ser o nosso validador final, esperamos que ele retorne com um true para continuar o restante do código
-    bool rgPreenchido = false;
-    bool emailValido = false;
-    bool dataNascimentoValido = false;
 
-    // CADASTRO NOME
-    do{
-        std::cout<<"------------------------------------------------------------------------------"<<std::endl;
-        std::cout<<"Olá! Vamos seguir com o seu cadastro!"<<std::endl;
-        std::cout<<"Por favor, informe o seu nome completo:"<<std::endl;
-        std::getline(std::cin>>std::ws, novoCadastro.dadosAluno.nomeCompleto);
-
-        if(novoCadastro.dadosAluno.nomeCompleto.empty()){
-            std::cout<<"Seu nome não pode ficar vazio!"<<std::endl;
-        }else{
-            std::cout<<"Nome registrado com sucesso!"<<std::endl;
-            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
-            nomePreenchido = true;
-        }
-    }while(!nomePreenchido);
-    std::string nomeCompleto = novoCadastro.dadosAluno.nomeCompleto;
-    size_t posEspaco = nomeCompleto.find(' '); // descobre o primeiro espaço
-    std::string primeiroNome = nomeCompleto.substr(0, posEspaco); // recorta o resto da string, ficando somente antes da posição do espaço
-
-    
-    // CADASTRO CPF
-    do{ 
-
-        std::cout<<primeiroNome<<", para continuar, vou precisar do seu CPF! Por favor, informe o seu CPF (apenas números ou com ponto/traço): "<<std::endl;
-        std::getline(std::cin>>std::ws, cpfDigitado); // usando getline para caso de digitar 000 000 000 00
-
-        std::string cpfLimpo = limparString(cpfDigitado); // beleza, criamos uma variavel chamada de cpfLimpo, que vai receber o cpf tratado na função limparString
-
-        if(validadorCPF(cpfLimpo) == true){
-            novoCadastro.dadosAluno.cpf = cpfLimpo;
-            cpfValido = true;
-            std::cout<<"CPF Validado e cadastrado com sucesso!"<<std::endl;            
-            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
-        }else{
-            std::cout<<"CPF Inválido, tente novamente."<<std::endl;
-        }
-    }while(!cpfValido);
-
-    // CADASTRAR RG
-
-    do{
-        
-        std::cout<<"Vou precisar do seu RG agora: "<<std::endl;
-        std::getline(std::cin>>std::ws, novoCadastro.dadosAluno.rg);
-
-        if(novoCadastro.dadosAluno.rg.empty()){
-            std::cout<<"Seu RG não pode ficar vazio!"<<std::endl;
-        }else if(novoCadastro.dadosAluno.rg.length() < 7 || novoCadastro.dadosAluno.rg.length() > 9){
-            std::cout<<"RG inválido! Tente novamente."<<std::endl;
-        }else{
-            std::cout<<"RG Cadastrado com sucesso!"<<std::endl;
-            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
-            rgPreenchido = true;
-        }
-    }while(!rgPreenchido);
-
-    // CADASTRAR EMAIL
-
-    do{
-
-        std::cout<<"Insira seu e-mail para o cadastro: "<<std::endl;
-        std::getline(std::cin>>std::ws, novoCadastro.dadosAluno.email);
-
-        if(novoCadastro.dadosAluno.email.empty()){
-            std::cout<<"Seu e-mail não poode ficar vazio!"<<std::endl;
-        }else if(validadorEmail(novoCadastro.dadosAluno.email)){
-            std::cout<<"E-mail registrado com sucesso!"<<std::endl;
-            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
-            emailValido = true;
-        }else{
-            std::cout<<"E-mail invalido! (Ex: usuario@gmail.com)"<<std::endl;
-        }
-    }while(!emailValido);
-    
-    // CADASTRAR DATA DE NASCIMENTO
-
-    do{
-
-        std::cout<<"Informe sua data de nascimento para continuar: (dd/mm/aaaa)"<<std::endl;
-        std::getline(std::cin>>std::ws, novoCadastro.dadosAluno.dataNascimento);
-        std::string dataNascimentoLimpa = limparString(novoCadastro.dadosAluno.dataNascimento);
-
-        if(novoCadastro.dadosAluno.dataNascimento.empty()){
-            std::cout<<"Sua data de nascimento não pode ficar vazia!"<<std::endl;
-        }else if(dataNascimentoLimpa.length() != 8){
-            std::cout<<"Data de Nascimento não pode ser menor/maior que 8 digitos (00/00/0000)"<<std::endl;
-        }else if(validadorDataNascimento(dataNascimentoLimpa)){
-            std::cout<<"Sua data de nascimento foi cadastrada com sucesso!"<<std::endl;
-            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
-            dataNascimentoValido = true;
-        }else{
-            std::cout<<"Data de Nascimento inválida (dd/mm/aaa)"<<std::endl;
-        }
-    }while(!dataNascimentoValido);
-
+    novoCadastro.dadosAluno = cadastrarPessoa("Aluno");    
 
     return 0;
 }
+
