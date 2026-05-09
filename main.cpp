@@ -3,13 +3,11 @@
 #include<windows.h>
 #include<cctype> // biblioteca com funções úteis para tratar caracteres individuais
 #include<ctime> // lib para pegar o tempo do computador
+#include<vector> // bora guardar esses cadastros
 
 int main();
 int menuSelecaoCurso(int cursoSelecionado);
 int cursosDisponiveis();
-int menuCadastro();
-int cadastrarAluno();
-int cadastrarEnderecoAluno();
 std::string limparString(std::string cpf);
 bool validadorCPF(std::string cpfLimpo);
 bool validadorEmail(std::string email);
@@ -141,6 +139,7 @@ struct Pessoa cadastrarPessoa(std::string tipoPessoa){
         }else if(dataNascimentoLimpa.length() != 8){
             std::cout<<"Data de Nascimento não pode ser menor/maior que 8 digitos (00/00/0000)"<<std::endl;
         }else if(validadorDataNascimento(dataNascimentoLimpa)){
+            p.dataNascimento = dataNascimentoLimpa;
             std::cout<<"Sua data de nascimento foi cadastrada com sucesso!"<<std::endl;
             std::cout<<"------------------------------------------------------------------------------"<<std::endl;
             valido = true;
@@ -150,6 +149,95 @@ struct Pessoa cadastrarPessoa(std::string tipoPessoa){
     }while(!valido);
 
     return p;
+};
+
+struct Endereco cadastrarEndereco(std::string tipoPessoa){
+    Endereco e;
+    bool valido = false;
+
+    std::cout<<"Finalizamos o seu cadastro pessoal, agora vamos precisa cadastrar o endereço do "<<tipoPessoa<<std::endl;
+
+    // RUA
+    std::cout<<"Digite o nome da sua rua: "<<std::endl;
+    std::getline(std::cin>>std::ws, e.rua);
+    std::cout<<"RUA cadastrada com sucesso!"<<std::endl;
+    std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+
+    // NUMERO
+    std::cout<<"Qual o número de sua residência?"<<std::endl;
+    std::getline(std::cin>>std::ws, e.numero);
+    std::cout<<"Número cadastrado com sucesso!"<<std::endl;
+    std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+
+    // CEP
+    do{
+        std::cout<<"Qual o CEP da residência?"<<std::endl;
+        std::getline(std::cin>>std::ws, e.cep);
+        std::string cepLimpo = limparString(e.cep);
+
+        if(cepLimpo.length() == 8){
+            std::cout<<"CEP cadastrado com sucesso!"<<std::endl;
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+            valido = true;
+        }
+    }while(!valido);
+
+    // Complemento
+    std::cout<<"Algum complemento? Ex. apto, bloco, ponto de interesse"<<std::endl;
+    std::getline(std::cin>>std::ws, e.complemento);
+    std::cout<<"Complemento cadastrado com sucesso!"<<std::endl;
+    std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+
+    return e;
+}
+
+Cadastro cadastroPessoaEndereco(){
+
+    Cadastro novoCadastro;
+    char resposta;
+
+    novoCadastro.dadosAluno = cadastrarPessoa("Aluno");
+    novoCadastro.enderecoAluno = cadastrarEndereco("Aluno");
+
+    // Verificar se o responsável financeiro é o mesmo do aluno
+
+    std::cout<<"O responsável financeiro é o próprio Aluno? Responda S/N:"<<std::endl;
+    std::cin>>resposta;
+    std::cin.ignore(1000, '\n'); // para limpar o buffer de qualquer "enter" que ainda tiver aqui para o próximo getline
+
+    if(toupper(resposta) == 'S'){
+        novoCadastro.dadosResponsavel = novoCadastro.dadosAluno;
+        novoCadastro.enderecoResponsavel = novoCadastro.enderecoAluno;
+        novoCadastro.responsavelFinanAluno = 'S';
+        std::cout<<"Dados copiados do cadastro do aluno com sucesso!"<<std::endl;
+    }else{
+        novoCadastro.responsavelFinanAluno = 'N';
+        novoCadastro.dadosResponsavel = cadastrarPessoa("Responsável");
+        
+        std::cout<<"O responsável mora junto com o aluno? Responsa S/N:"<<std::endl;
+
+        char moraJunto;
+        std::cin>>moraJunto;
+        std::cin.ignore(1000, '\n');
+
+        if(toupper(moraJunto) == 'S'){
+            novoCadastro.enderecoResponsavel = novoCadastro.enderecoAluno;
+            std::cout<<"Dados de endereço copiados do Aluno com sucesso!"<<std::endl;
+        }else{
+            novoCadastro.enderecoResponsavel = cadastrarEndereco("Responsável");
+        };
+    }
+
+    novoCadastro.usuario = novoCadastro.dadosAluno.cpf;
+    novoCadastro.senha = novoCadastro.dadosAluno.dataNascimento;
+
+
+    std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+    std::cout<<"Cadastro concluído com sucesso!"<<std::endl;
+    std::cout<<"Seu usuário para logar é: "<<novoCadastro.usuario<<std::endl;
+    std::cout<<"Sua senha para logar é: "<<novoCadastro.senha<<std::endl;
+
+    return novoCadastro;
 };
 
 std::string limparString(std::string stringSuja){ // o tal do limpas, vamos usar isso aqui com a biblioteca cctype para limpar os espaços, pontos, vírgulas ou qualquer caracter que não for um numeral
@@ -271,21 +359,26 @@ bool anoEhBissexto(int ano){
 int main(){ // MENU PRINCIPAL - INICIAL
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
+    std::vector<Cadastro> listaAlunos; // bem seguro, eu sei
     int escolhaMenu;
 
     do{
         std::cout<<"------------------------------------------------------------------------------"<<std::endl;
         std::cout<<"Bem-vindo! Quem bom que escolheu o SENAC! Selecione uma opção para começar."<<std::endl;
-        std::cout<<"1 - Conhecer Cursos"<<std::endl<<"2 - Cadastrar Aluno"<<std::endl<<"0 - Sair"<<std::endl;
+        std::cout<<"1 - Conhecer Cursos"<<std::endl<<"2 - Cadastrar Aluno"<<std::endl<<"3 - Logar"<<std::endl<<"0 - Sair"<<std::endl;
         std::cin>>escolhaMenu;
 
         switch(escolhaMenu){
             case 1:
                 cursosDisponiveis();
-                return 1;
-            case 2:
-                menuCadastro();
-                return 2;
+                break;
+            case 2: 
+                listaAlunos.push_back(cadastroPessoaEndereco()); // aqui já faz o cadastro e já coloca dentro do vector
+                std::cout<<"Total de Alunos no sistema: "<<listaAlunos.size()<<std::endl; // só pra ver se deu tudo certo mesmo
+                break;
+            case 3:
+                std::cout<<"Função de Login ainda não implementada!"<<std::endl;
+                break;
             case 0:
                 std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
                 return 0;
@@ -293,7 +386,9 @@ int main(){ // MENU PRINCIPAL - INICIAL
                 std::cout<<"Número Inválido!"<<std::endl;
                 break;
         }
-    }while(true);
+    }while(escolhaMenu != 0);
+
+    return 0;
 }
 
 int cursosDisponiveis(){ // MENU COM OS CURSOS
@@ -368,7 +463,6 @@ int cursosDisponiveis(){ // MENU COM OS CURSOS
                 std::cout<<menuSelecaoCurso(7);
                 return 7;
             case 9:
-                main();
                 return 9;
             case 0:
                 std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
@@ -414,7 +508,6 @@ int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO 
                 cursosDisponiveis();
                 return 8;
             case 9:
-                main();
                 return 9;
             case 0:
                 std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
@@ -428,50 +521,4 @@ int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO 
     return 0;
 }
 
-int menuCadastro(){ //CADASTRO DO ALUNO
-
-    //bool cadastroConcluido = false; // Verificador se usuario já cadastrado
-
-    int escolhaCadastro;
-
-    do{
-        std::cout<<"------------------------------------------------------------------------------"<<std::endl;
-        std::cout<<"Selecione a opção desejada abaixo."<<std::endl;
-        std::cout<<"1 - Cadastrar"<<std::endl;
-        std::cout<<"2 - Logar"<<std::endl;
-        std::cout<<"9 - Menu Principal"<<std::endl;
-        std::cout<<"0 - Sair"<<std::endl;
-        std::cin>>escolhaCadastro;
-
-        switch (escolhaCadastro){
-            case 1:
-                cadastrarAluno();
-                return 1;
-            case 2:
-                //logar();
-                return 2;
-            case 9:
-                main();
-                return 9;
-            case 0:
-                std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
-                return 0;
-            default:
-                std::cout<<"Número Inválido!"<<std::endl;
-                break;
-        }
-    }while(true);
-
-    return 0;
-
-}
-
-int cadastrarAluno(){
-
-    Cadastro novoCadastro;
-
-    novoCadastro.dadosAluno = cadastrarPessoa("Aluno");    
-
-    return 0;
-}
 
