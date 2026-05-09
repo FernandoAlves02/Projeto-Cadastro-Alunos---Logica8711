@@ -59,9 +59,7 @@ std::string limparString(std::string stringSuja){ // o tal do limpas, vamos usar
 
 bool validadorCPF(std::string cpfLimpo){ // VALIDADOR DE CPF (NUMEROS IGUAS) (DIGITO IDENTIFICADOR)
 
-    if(cpfLimpo.length() != 11){ 
-        return false;
-    }
+    if(cpfLimpo.length() != 11) return false;
 
     bool repetido = true;
     for(int i = 1; i < 11; i++){ // verificar se todos os digitos de são iguais (se o i é diferente do primeiro numero, retorna falso, quer dizer que pode ser um cpf valido)
@@ -71,9 +69,7 @@ bool validadorCPF(std::string cpfLimpo){ // VALIDADOR DE CPF (NUMEROS IGUAS) (DI
         }
     }
     
-    if(repetido == true){
-        return false;
-    } 
+    if(repetido == true) return false;
 
     int somaD10 = 0; // se não colocar o 0, por algum motivo, não da certo, parece que o proprio codigo vem com um numero aleatorio
     int somaD11 = 0;
@@ -112,9 +108,7 @@ bool validadorCPF(std::string cpfLimpo){ // VALIDADOR DE CPF (NUMEROS IGUAS) (DI
         d11Valido = true;
     }
 
-    if(d10Valido && d11Valido){
-        return true;
-    }
+    if(d10Valido && d11Valido) return true;
 
     return false;
 
@@ -164,7 +158,7 @@ bool validadorDataNascimento(std::string dataNascimento){ // VERIFICAR SE A DATA
 };
 
 bool anoEhBissexto(int ano){
-    return (ano % 4 && (ano % 100) != 0 || ano % 400);
+    return (ano % 4 == 0 && (ano % 100) != 0 || ano % 400);
 }
 
 int main(){ // MENU PRINCIPAL - INICIAL
@@ -386,6 +380,7 @@ int cadastrarAluno(){
             std::cout<<"Seu nome não pode ficar vazio!"<<std::endl;
         }else{
             std::cout<<"Nome registrado com sucesso!"<<std::endl;
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
             nomePreenchido = true;
         }
     }while(!nomePreenchido);
@@ -405,7 +400,8 @@ int cadastrarAluno(){
         if(validadorCPF(cpfLimpo) == true){
             novoCadastro.dadosAluno.cpf = cpfLimpo;
             cpfValido = true;
-            std::cout<<"CPF Validado com sucesso!"<<std::endl;
+            std::cout<<"CPF Validado e cadastrado com sucesso!"<<std::endl;            
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
         }else{
             std::cout<<"CPF Inválido, tente novamente."<<std::endl;
         }
@@ -424,6 +420,7 @@ int cadastrarAluno(){
             std::cout<<"RG inválido! Tente novamente."<<std::endl;
         }else{
             std::cout<<"RG Cadastrado com sucesso!"<<std::endl;
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
             rgPreenchido = true;
         }
     }while(!rgPreenchido);
@@ -438,7 +435,8 @@ int cadastrarAluno(){
         if(novoCadastro.dadosAluno.email.empty()){
             std::cout<<"Seu e-mail não poode ficar vazio!"<<std::endl;
         }else if(validadorEmail(novoCadastro.dadosAluno.email)){
-            std::cout<<"E-mail registrado!"<<std::endl;
+            std::cout<<"E-mail registrado com sucesso!"<<std::endl;
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
             emailValido = true;
         }else{
             std::cout<<"E-mail invalido! (Ex: usuario@gmail.com)"<<std::endl;
@@ -459,6 +457,7 @@ int cadastrarAluno(){
             std::cout<<"Data de Nascimento não pode ser menor/maior que 8 digitos (00/00/0000)"<<std::endl;
         }else if(validadorDataNascimento(dataNascimentoLimpa)){
             std::cout<<"Sua data de nascimento foi cadastrada com sucesso!"<<std::endl;
+            std::cout<<"------------------------------------------------------------------------------"<<std::endl;
             dataNascimentoValido = true;
         }else{
             std::cout<<"Data de Nascimento inválida (dd/mm/aaa)"<<std::endl;
