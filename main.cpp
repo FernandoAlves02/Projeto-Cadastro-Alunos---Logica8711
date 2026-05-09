@@ -7,7 +7,7 @@ int main();
 int menuSelecaoCurso(int cursoSelecionado);
 int cursosDisponiveis();
 int menuCadastro();
-int cadastrar();
+int cadastrarAluno();
 std::string limparCPF(std::string cpf);
 bool validadorCPF(std::string cpfLimpo);
 // iniciando as funções aqui em cima para não dar erro de escopo depois
@@ -262,6 +262,10 @@ bool validadorCPF(std::string cpfLimpo){
 
     int calculoD11 = somaD11%11;
     int d11 = 11 - calculoD11;
+    if(d11 == 10 || d11 == 11){
+        d11 = 0;
+    }
+
     if(d11 == (cpfLimpo[10] - '0')){
         d11Valido = true;
     }
@@ -291,7 +295,7 @@ int menuCadastro(){ //CADASTRO DO ALUNO
 
         switch (escolhaCadastro){
             case 1:
-                cadastrar();
+                cadastrarAluno();
                 return 1;
             case 2:
                 //logar();
@@ -312,11 +316,13 @@ int menuCadastro(){ //CADASTRO DO ALUNO
 
 }
 
-int cadastrar(){
+int cadastrarAluno(){
 
     Cadastro novoCadastro;
     std::string cpfDigitado; // vamos usar esse carinha aqui para verificar se o CPF digitado é valido antes de levar pro cadastro
     bool cpfValido = false; // esse vai ser o nosso validador final, esperamos que ele retorne com um true para continuar o restante do código
+    bool rgVazio = false;
+
 
     std::cout<<"------------------------------------------------------------------------------"<<std::endl;
     std::cout<<"Olá! Vamos seguir com o seu cadastro!"<<std::endl;
@@ -344,6 +350,25 @@ int cadastrar(){
             std::cout<<"CPF Inválido, tente novamente."<<std::endl;
         }
     }while(!cpfValido);
+
+    // CADASTRAR RG
+
+    do{
+        
+        std::cout<<"Vou precisar do seu RG agora: "<<std::endl;
+        std::getline(std::cin>>std::ws, novoCadastro.dadosAluno.rg);
+
+        if(novoCadastro.dadosAluno.rg.empty()){
+            std::cout<<"Seu RG não pode ficar vazio!"<<std::endl;
+        }else if(novoCadastro.dadosAluno.rg.length() < 7 || novoCadastro.dadosAluno.rg.length() > 9){
+            std::cout<<"RG inválido! Tente novamente."<<std::endl;
+        }else{
+            std::cout<<"RG Cadastrado com sucesso!"<<std::endl;
+            rgVazio = true;
+        }
+    }while(!rgVazio);
+
+    
 
 
     return 0;
