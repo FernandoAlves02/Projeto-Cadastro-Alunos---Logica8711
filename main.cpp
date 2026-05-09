@@ -233,7 +233,44 @@ bool validadorCPF(std::string cpfLimpo){
         return false;
     } 
 
-    return true;
+    int somaD10 = 0; // se não colocar o 0, por algum motivo, não da certo, parece que o proprio codigo vem com um numero aleatorio
+    int somaD11 = 0;
+    int multiplicadorD10 = 10;
+    int multiplicadord11 = 11;
+    bool d10Valido = false;
+    bool d11Valido = false;
+
+    for(int i = 0; i < 9; i++){
+        somaD10 += (cpfLimpo[i] - '0') * multiplicadorD10;
+        multiplicadorD10--;
+    }
+
+    int calculoD10 = somaD10%11;
+    int d10 = 11 - calculoD10;
+    if(d10 == 10 || d10 == 11){
+        d10 = 0;
+    }
+
+    if(d10 == (cpfLimpo[9] - '0')){
+        d10Valido = true;
+    }
+
+    for(int i = 0; i < 10; i++){
+        somaD11 += (cpfLimpo[i] - '0') * multiplicadord11;
+        multiplicadord11--;
+    }
+
+    int calculoD11 = somaD11%11;
+    int d11 = 11 - calculoD11;
+    if(d11 == (cpfLimpo[10] - '0')){
+        d11Valido = true;
+    }
+
+    if(d10Valido && d11Valido){
+        return true;
+    }
+
+    return false;
 
 }
 
