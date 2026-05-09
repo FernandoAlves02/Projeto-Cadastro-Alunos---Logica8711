@@ -2,15 +2,18 @@
 #include<string>
 #include<windows.h>
 #include<cctype> // biblioteca com funções úteis para tratar caracteres individuais
+#include<ctime> // lib para pegar o tempo do computador
 
 int main();
 int menuSelecaoCurso(int cursoSelecionado);
 int cursosDisponiveis();
 int menuCadastro();
 int cadastrarAluno();
-std::string limparCPF(std::string cpf);
+std::string limparString(std::string cpf);
 bool validadorCPF(std::string cpfLimpo);
 bool validadorEmail(std::string email);
+bool validadorDataNascimento(std::string dataNascimento);
+bool anoEhBissexto(int ano);
 // iniciando as funções aqui em cima para não dar erro de escopo depois
 
 struct Pessoa {
@@ -41,6 +44,128 @@ struct Cadastro {
     Pessoa dadosResponsavel;
     Endereco enderecoResponsavel;
 };
+
+std::string limparString(std::string stringSuja){ // o tal do limpas, vamos usar isso aqui com a biblioteca cctype para limpar os espaços, pontos, vírgulas ou qualquer caracter que não for um numeral
+    
+    std::string stringLimpa = ""; // variavel vazia para armazenar os números limpos
+
+    for (char c : stringSuja){ // para cada caracter na stringSuja, verificar se é um digito númerico, se for, guardar esse dígito dentro da var apenasNumeros, no final, retornar esses números
+        if (isdigit(c)){
+            stringLimpa += c;
+        }
+    }
+    return stringLimpa;
+}
+
+bool validadorCPF(std::string cpfLimpo){ // VALIDADOR DE CPF (NUMEROS IGUAS) (DIGITO IDENTIFICADOR)
+
+    if(cpfLimpo.length() != 11){ 
+        return false;
+    }
+
+    bool repetido = true;
+    for(int i = 1; i < 11; i++){ // verificar se todos os digitos de são iguais (se o i é diferente do primeiro numero, retorna falso, quer dizer que pode ser um cpf valido)
+        if(cpfLimpo[i] != cpfLimpo[0]){
+            repetido = false;
+            break;
+        }
+    }
+    
+    if(repetido == true){
+        return false;
+    } 
+
+    int somaD10 = 0; // se não colocar o 0, por algum motivo, não da certo, parece que o proprio codigo vem com um numero aleatorio
+    int somaD11 = 0;
+    int multiplicadorD10 = 10;
+    int multiplicadord11 = 11;
+    bool d10Valido = false;
+    bool d11Valido = false;
+
+    for(int i = 0; i < 9; i++){
+        somaD10 += (cpfLimpo[i] - '0') * multiplicadorD10;
+        multiplicadorD10--;
+    }
+
+    int calculoD10 = somaD10%11;
+    int d10 = 11 - calculoD10;
+    if(d10 == 10 || d10 == 11){
+        d10 = 0;
+    }
+
+    if(d10 == (cpfLimpo[9] - '0')){
+        d10Valido = true;
+    }
+
+    for(int i = 0; i < 10; i++){
+        somaD11 += (cpfLimpo[i] - '0') * multiplicadord11;
+        multiplicadord11--;
+    }
+
+    int calculoD11 = somaD11%11;
+    int d11 = 11 - calculoD11;
+    if(d11 == 10 || d11 == 11){
+        d11 = 0;
+    }
+
+    if(d11 == (cpfLimpo[10] - '0')){
+        d11Valido = true;
+    }
+
+    if(d10Valido && d11Valido){
+        return true;
+    }
+
+    return false;
+
+}
+
+bool validadorEmail(std::string email){ // VALIDADOR DE EMAIL (SE CONTEM @ E .) (SE NÃO ESTÃO NOS LUGARES ERRADOS)
+    
+    size_t posicaoArroba = email.find('@'); // size_t pois não sabemos o tamanho do e_mail, dependendo da situação, o int não vai guardar a posição, então, encontramos o @ e a pos dele
+    size_t posicaoPonto = email.find('.', posicaoArroba); // aqui pedimos para ele encontrar um "ponto", mas que procure após a posição do arroba
+
+    if(posicaoArroba != std::string::npos &&    // Verifica se posição do arroba existe na string (npos diz que não existe, mas aqui to pedindo !=)
+        posicaoArroba > 0 &&                    // Verficia se o "@" não é o primeiro caracter
+        posicaoPonto != std::string::npos &&    // mesma coisa, verifica se o ponto existe
+        posicaoPonto < (email.length() - 1)){   // Verifica se o "."" não é o ultimo caracter
+            return true;                        // Se tudo der certo, retorna que esta validado
+        }
+
+    return false;
+}
+
+bool validadorDataNascimento(std::string dataNascimento){ // VERIFICAR SE A DATA É VALIDA (TEM ESSE DIA NO MES)
+
+    time_t t = time(0); // time_t tipo de variavel para guardar tempo, time(0) vai pegar o tempooperacional unix(total de segundos desde 01/01/1970)
+    tm* dataAtual = localtime(&t); //tm é uma struct da lib ctime, *dataAtual é um ponteiro para onde estão os dados na memoria, localtime() é uma função para transofrmar em algo legivel o time(0)
+
+    int anoAtual = dataAtual->tm_year + 1900; // -> pois como é um ponteiro, não é usado "." para pegar algo de dentro, que seria tm_year = 126 (ele conta quantos anos se passaram desde 1900)
+
+    int dia = std::stoi(dataNascimento.substr(0,2)); // stoi = string to integer, vai transformar a string num int, substring vai criar uma string começando indice 0, e pegando 2 valores
+    int mes = std::stoi(dataNascimento.substr(2,2));
+    int ano = std::stoi(dataNascimento.substr(4,4)); 
+
+    if(ano < 1900 || ano > anoAtual) return false; // se for antes de 1900 ou depois do ano atual, ta errado
+
+    int diasNoMes[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    
+    if(anoEhBissexto(ano)) diasNoMes[2] = 29; // verifica se o ano é bissexto, se for, o mes 2 vira 29;
+
+    if(dia < 1 || dia > diasNoMes[mes]) return false;
+
+    if(ano == anoAtual){
+        int mesAtual = dataAtual->tm_mon + 1; // pega o month(mes) atual e adiciona 1 (o mes dele vai de 0 a 11)
+        if(mes > mesAtual) return false;
+        if(mes == mesAtual && dia > dataAtual->tm_mday) return false; // se for o mesmo mes atual, não pode ser um dia mais avançado que hoje, embora aqui tu ta cadastrando um recem-nascido
+    }
+
+    return true;
+};
+
+bool anoEhBissexto(int ano){
+    return (ano % 4 && (ano % 100) != 0 || ano % 400);
+}
 
 int main(){ // MENU PRINCIPAL - INICIAL
     SetConsoleOutputCP(CP_UTF8);
@@ -202,96 +327,6 @@ int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO 
     return 0;
 }
 
-std::string limparCPF(std::string cpf){ // o tal do limpas, vamos usar isso aqui com a biblioteca cctype para limpar os espaços, pontos, vírgulas ou qualquer caracter que não for um numeral
-    
-    std::string apenasNumeros = ""; // variavel vazia para armazenar os números limpos
-
-    for (char c : cpf){ // para cada caracter C em cpf, verificar se é um digito númerico, se for, guardar esse dígito dentro da var apenasNumeros, no final, retornar esses números
-        if (isdigit(c)){
-            apenasNumeros += c;
-        }
-    }
-    return apenasNumeros;
-}
-
-bool validadorCPF(std::string cpfLimpo){
-
-    if(cpfLimpo.length() != 11){ 
-        return false;
-    }
-
-    bool repetido = true;
-    for(int i = 1; i < 11; i++){ // verificar se todos os digitos de são iguais (se o i é diferente do primeiro numero, retorna falso, quer dizer que pode ser um cpf valido)
-        if(cpfLimpo[i] != cpfLimpo[0]){
-            repetido = false;
-            break;
-        }
-    }
-    
-    if(repetido == true){
-        return false;
-    } 
-
-    int somaD10 = 0; // se não colocar o 0, por algum motivo, não da certo, parece que o proprio codigo vem com um numero aleatorio
-    int somaD11 = 0;
-    int multiplicadorD10 = 10;
-    int multiplicadord11 = 11;
-    bool d10Valido = false;
-    bool d11Valido = false;
-
-    for(int i = 0; i < 9; i++){
-        somaD10 += (cpfLimpo[i] - '0') * multiplicadorD10;
-        multiplicadorD10--;
-    }
-
-    int calculoD10 = somaD10%11;
-    int d10 = 11 - calculoD10;
-    if(d10 == 10 || d10 == 11){
-        d10 = 0;
-    }
-
-    if(d10 == (cpfLimpo[9] - '0')){
-        d10Valido = true;
-    }
-
-    for(int i = 0; i < 10; i++){
-        somaD11 += (cpfLimpo[i] - '0') * multiplicadord11;
-        multiplicadord11--;
-    }
-
-    int calculoD11 = somaD11%11;
-    int d11 = 11 - calculoD11;
-    if(d11 == 10 || d11 == 11){
-        d11 = 0;
-    }
-
-    if(d11 == (cpfLimpo[10] - '0')){
-        d11Valido = true;
-    }
-
-    if(d10Valido && d11Valido){
-        return true;
-    }
-
-    return false;
-
-}
-
-bool validadorEmail(std::string email){
-    
-    size_t posicaoArroba = email.find('@'); // size_t pois não sabemos o tamanho do e_mail, dependendo da situação, o int não vai guardar a posição, então, encontramos o @ e a pos dele
-    size_t posicaoPonto = email.find('.', posicaoArroba); // aqui pedimos para ele encontrar um "ponto", mas que procure após a posição do arroba
-
-    if(posicaoArroba != std::string::npos &&    // Verifica se posição do arroba existe na string (npos diz que não existe, mas aqui to pedindo !=)
-        posicaoArroba > 0 &&                    // Verficia se o "@" não é o primeiro caracter
-        posicaoPonto != std::string::npos &&    // mesma coisa, verifica se o ponto existe
-        posicaoPonto < (email.length() - 1)){   // Verifica se o "."" não é o ultimo caracter
-            return true;                        // Se tudo der certo, retorna que esta validado
-        }
-
-    return false;
-}
-
 int menuCadastro(){ //CADASTRO DO ALUNO
 
     //bool cadastroConcluido = false; // Verificador se usuario já cadastrado
@@ -333,29 +368,39 @@ int menuCadastro(){ //CADASTRO DO ALUNO
 int cadastrarAluno(){
 
     Cadastro novoCadastro;
+    bool nomePreenchido = false;
     std::string cpfDigitado; // vamos usar esse carinha aqui para verificar se o CPF digitado é valido antes de levar pro cadastro
     bool cpfValido = false; // esse vai ser o nosso validador final, esperamos que ele retorne com um true para continuar o restante do código
-    bool rgVazio = false;
+    bool rgPreenchido = false;
     bool emailValido = false;
+    bool dataNascimentoValido = false;
 
+    // CADASTRO NOME
+    do{
+        std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+        std::cout<<"Olá! Vamos seguir com o seu cadastro!"<<std::endl;
+        std::cout<<"Por favor, informe o seu nome completo:"<<std::endl;
+        std::getline(std::cin>>std::ws, novoCadastro.dadosAluno.nomeCompleto);
 
-    std::cout<<"------------------------------------------------------------------------------"<<std::endl;
-    std::cout<<"Olá! Vamos seguir com o seu cadastro!"<<std::endl;
-    std::cout<<"Por favor, informe o seu nome completo:"<<std::endl;
-    std::getline(std::cin>>std::ws, novoCadastro.dadosAluno.nomeCompleto);
-
+        if(novoCadastro.dadosAluno.nomeCompleto.empty()){
+            std::cout<<"Seu nome não pode ficar vazio!"<<std::endl;
+        }else{
+            std::cout<<"Nome registrado com sucesso!"<<std::endl;
+            nomePreenchido = true;
+        }
+    }while(!nomePreenchido);
     std::string nomeCompleto = novoCadastro.dadosAluno.nomeCompleto;
     size_t posEspaco = nomeCompleto.find(' '); // descobre o primeiro espaço
     std::string primeiroNome = nomeCompleto.substr(0, posEspaco); // recorta o resto da string, ficando somente antes da posição do espaço
 
-    // ACIMA, NOME, ABAIXO, CPF
-
-    do{ // usar um loop do:while para manter o usuário no loop enquanto cpf não for valido
+    
+    // CADASTRO CPF
+    do{ 
 
         std::cout<<primeiroNome<<", para continuar, vou precisar do seu CPF! Por favor, informe o seu CPF (apenas números ou com ponto/traço): "<<std::endl;
         std::getline(std::cin>>std::ws, cpfDigitado); // usando getline para caso de digitar 000 000 000 00
 
-        std::string cpfLimpo = limparCPF(cpfDigitado); // beleza, criamos uma variavel chamada de cpfLimpo, que vai receber o cpf tratador na função limparCPF
+        std::string cpfLimpo = limparString(cpfDigitado); // beleza, criamos uma variavel chamada de cpfLimpo, que vai receber o cpf tratado na função limparString
 
         if(validadorCPF(cpfLimpo) == true){
             novoCadastro.dadosAluno.cpf = cpfLimpo;
@@ -379,9 +424,9 @@ int cadastrarAluno(){
             std::cout<<"RG inválido! Tente novamente."<<std::endl;
         }else{
             std::cout<<"RG Cadastrado com sucesso!"<<std::endl;
-            rgVazio = true;
+            rgPreenchido = true;
         }
-    }while(!rgVazio);
+    }while(!rgPreenchido);
 
     // CADASTRAR EMAIL
 
@@ -398,9 +443,27 @@ int cadastrarAluno(){
         }else{
             std::cout<<"E-mail invalido! (Ex: usuario@gmail.com)"<<std::endl;
         }
-
     }while(!emailValido);
     
+    // CADASTRAR DATA DE NASCIMENTO
+
+    do{
+
+        std::cout<<"Informe sua data de nascimento para continuar: (dd/mm/aaaa)"<<std::endl;
+        std::getline(std::cin>>std::ws, novoCadastro.dadosAluno.dataNascimento);
+        std::string dataNascimentoLimpa = limparString(novoCadastro.dadosAluno.dataNascimento);
+
+        if(novoCadastro.dadosAluno.dataNascimento.empty()){
+            std::cout<<"Sua data de nascimento não pode ficar vazia!"<<std::endl;
+        }else if(dataNascimentoLimpa.length() != 8){
+            std::cout<<"Data de Nascimento não pode ser menor/maior que 8 digitos (00/00/0000)"<<std::endl;
+        }else if(validadorDataNascimento(dataNascimentoLimpa)){
+            std::cout<<"Sua data de nascimento foi cadastrada com sucesso!"<<std::endl;
+            dataNascimentoValido = true;
+        }else{
+            std::cout<<"Data de Nascimento inválida (dd/mm/aaa)"<<std::endl;
+        }
+    }while(!dataNascimentoValido);
 
 
     return 0;
