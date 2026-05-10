@@ -353,7 +353,7 @@ bool validadorDataNascimento(std::string dataNascimento){ // VERIFICAR SE A DATA
 };
 
 bool anoEhBissexto(int ano){
-    return (ano % 4 == 0 && (ano % 100) != 0 || ano % 400);
+    return (ano % 4 == 0 && (ano % 100) != 0 || (ano % 400) == 0);
 }
 
 int main(){ // MENU PRINCIPAL - INICIAL
@@ -418,49 +418,49 @@ int cursosDisponiveis(){ // MENU COM OS CURSOS
                 std::cout<<"Um curso contendo 1.216 horas totais, com turmas disponíveis de SEG a SEX, das 19h às 22h;"<<std::endl;
                 std::cout<<"Docente responsável pelo curso é o Ilustre Mestre Eduardo, uma pessoa Jovial e de muito charme!"<<std::endl;
                 std::cout<<"O custo do curso hoje está saindo por R$ 14.405,49, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                std::cout<<menuSelecaoCurso(1);
+                menuSelecaoCurso(1);
                 return 1;
             case 2:
                 std::cout<<"Curso Técnico em Enfermagem!"<<std::endl;
                 std::cout<<"Um curso contendo 1.600 horas totais, com turmas disponíveis de SEG a SEX, das 19h às 22h ou das 09h às 12h"<<std::endl;
                 std::cout<<"Docentes responsáveis pelo curso são: a Carol e a Thamise!"<<std::endl;
                 std::cout<<"O custo do curso hoje está saindo por R$ 15.278,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                std::cout<<menuSelecaoCurso(2);
+                menuSelecaoCurso(2);
                 return 2;
             case 3:
                 std::cout<<"Curso Técnico em Modelagem do Vestuário!"<<std::endl;
                 std::cout<<"Um curso contendo 800 horas totais, com turmas disponíveis em 2 escalas, escala 1: SEG, QUA e SEX, das 19h às 22h. Escala 2: TER e SEX das 19h às 22h"<<std::endl;
                 std::cout<<"Docentes responsáveis pelo curso são: a Natália e o Ramon!"<<std::endl;
                 std::cout<<"O custo do curso hoje está saindo por R$ 14.844,79, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                std::cout<<menuSelecaoCurso(3);
+                menuSelecaoCurso(3);
                 return 3;
             case 4:
                 std::cout<<"Curso EAD de Recursos Humanos!"<<std::endl;
                 std::cout<<"Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!"<<std::endl;
                 std::cout<<"Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!"<<std::endl;
                 std::cout<<"O custo do curso hoje está saindo por R$ 3.355,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                std::cout<<menuSelecaoCurso(4);
+                menuSelecaoCurso(4);
                 return 4;
             case 5:
                 std::cout<<"Curso EAD de Logística!"<<std::endl;
                 std::cout<<"Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!"<<std::endl;
                 std::cout<<"Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!"<<std::endl;
                 std::cout<<"O custo do curso hoje está saindo por R$ 3.751,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                std::cout<<menuSelecaoCurso(5);
+                <menuSelecaoCurso(5);
                 return 5;
             case 6:
                 std::cout<<"Curso EAD de Contabilidade!"<<std::endl;
                 std::cout<<"Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!"<<std::endl;
                 std::cout<<"Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!"<<std::endl;
                 std::cout<<"O custo do curso hoje está saindo por R$ 3.355,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                std::cout<<menuSelecaoCurso(6);
+                menuSelecaoCurso(6);
                 return 5;
             case 7:
                 std::cout<<"Curso EAD de Transações Mobiliares!"<<std::endl;
                 std::cout<<"Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!"<<std::endl;
                 std::cout<<"Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!"<<std::endl;
                 std::cout<<"O custo do curso hoje está saindo por R$ 3.157,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                std::cout<<menuSelecaoCurso(7);
+                menuSelecaoCurso(7);
                 return 7;
             case 9:
                 return 9;
@@ -520,5 +520,3 @@ int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO 
 
     return 0;
 }
-
-
