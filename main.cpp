@@ -8,16 +8,21 @@
 struct Pessoa;
 struct Endereco;
 struct Cadastro;
+struct Curso;
 int main();
-int menuSelecaoCurso(int cursoSelecionado);
-int cursosDisponiveis();
+int mostrarMenuPrincipal(std::vector<Cadastro>& listaAlunos, int& indiceLogado);
+int menuSelecaoCurso(std::vector<Curso>& listaCursos, std::vector<Cadastro>& listaAlunos, int& indiceLogado, int indiceCursoEscolhido);
+int cursosDisponiveis(std::vector<Curso>& listaCursos, std::vector<Cadastro>& listaAlunos, int& indiceLogado);
 int realizarLogin(std::vector<Cadastro>& listaAlunos);
+int matricularCurso(std::vector<Curso>& listaCursos, std::vector<Cadastro>& listaAlunos, int& indiceLogado, int indiceCursoEscolhido);
 std::string limparString(std::string cpf);
 std::string primeiroNome(std::string nomeCompleto);
 bool validadorCPF(std::string cpfLimpo);
 bool validadorEmail(std::string email);
 bool validadorDataNascimento(std::string dataNascimento);
 bool anoEhBissexto(int ano);
+void formasDePagamento(int valor);
+void verMinhasMatriculas(Cadastro& aluno);
 // iniciando as funções aqui em cima para não dar erro de escopo depois
 
 struct Pessoa {
@@ -47,6 +52,17 @@ struct Cadastro {
 
     Pessoa dadosResponsavel;
     Endereco enderecoResponsavel;
+
+    std::vector<Curso> minhasMatriculas; // Lista de matriculas do aluno
+};
+
+struct Curso {
+    int id;
+    std::string tipo;
+    std::string nome;
+    std::string cargaHoraria;
+    std::string docente;
+    float valor;
 };
 
 struct Pessoa cadastrarPessoa(std::string tipoPessoa){
@@ -372,8 +388,115 @@ int main(){ // MENU PRINCIPAL - INICIAL
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     std::vector<Cadastro> listaAlunos; // bem seguro, eu sei
-    int escolhaMenu;
+    std::vector<Curso> listaCursos;
+
+    // BANCO DE CURSOS
+    // listaCursos.push_back({id, tipo, nome, cargaHoraria, docente, valor});
+    listaCursos.push_back({ // Desenvolvimento de Sistemas
+        0,   
+        "Técnico", 
+        "Desenvolvimento de Sistemas", 
+        "Um curso contendo 1.216 horas totais, com turmas disponíveis de SEG a SEX, das 19h às 22h.", 
+        "Docente responsável pelo curso é o Ilustre Mestre Eduardo, uma pessoa Jovial e de muito charme!",
+        14405.49});
+
+    listaCursos.push_back({ // Enfermagem
+        1,   
+        "Técnico", 
+        "Enfermagem", 
+        "Um curso contendo 1.600 horas totais, com turmas disponíveis de SEG a SEX, das 19h às 22h ou das 09h às 12h.", 
+        "Docentes responsáveis pelo curso são: a Carol e a Thamise.",
+        15278.00});
+
+    listaCursos.push_back({ // Modelagem do Vestuário
+        2,   
+        "Técnico", 
+        "Modelagem do Vestuário", 
+        "Um curso contendo 800 horas totais, com turmas disponíveis em 2 escalas, escala 1: SEG, QUA e SEX, das 19h às 22h. Escala 2: TER e SEX das 19h às 22h.", 
+        "Docentes responsáveis pelo curso são: a Natália e o Ramon.",
+        14844.79});
+
+    listaCursos.push_back({ // Recursos Humanos
+        3,   
+        "EAD", 
+        "Recursos Humanos", 
+        "Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário.", 
+        "Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!",
+        3355.00});
+
+    listaCursos.push_back({ // Logística
+        4,   
+        "EAD", 
+        "Logística", 
+        "Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!", 
+        "Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!",
+        3751.00});
+
+    listaCursos.push_back({ // Contabilidade
+        5,   
+        "EAD", 
+        "Contabilidade", 
+        "Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!", 
+        "Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!",
+        3355.00});
+
+    listaCursos.push_back({ // Transações Mobiliares
+        6,   
+        "EAD", 
+        "Transações Mobiliares", 
+        "Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!", 
+        "Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!",
+        3157.00});
+
+
     int indiceLogado = -1; // usar para verificar qual usuario está logado, por padrão "-1", ninguem logado
+    int telaAtual = 99;
+
+    while(telaAtual != 0){ // enquanto a tela não for para sair, bora limpar essa sujeira, jesus amado
+        system("cls");
+
+        switch(telaAtual){ // sisteminha de aeroporto parar de ficar dando bug no return e ir pra tela que n quero, ou ficar floodando main()
+            case 99:
+                telaAtual = mostrarMenuPrincipal(listaAlunos, indiceLogado);
+                break;
+            case 1:
+                telaAtual = cursosDisponiveis(listaCursos, listaAlunos, indiceLogado);
+                break;
+            case 2:
+                if(indiceLogado == -1){
+                    listaAlunos.push_back(cadastroPessoaEndereco()); // aqui já faz o cadastro e já coloca dentro do vector
+                    std::cout<<"Total de Alunos no sistema: "<<listaAlunos.size()<<std::endl; // só pra ver se deu tudo certo mesmo
+                    telaAtual = 99;
+                }else{
+                    verMinhasMatriculas(listaAlunos[indiceLogado]);
+                    telaAtual = 99;
+                };
+                break;
+            case 3:
+                if(indiceLogado == -1){
+                    indiceLogado = realizarLogin(listaAlunos); // bora tentar logar
+                }else{
+                    indiceLogado = -1;
+                    std::cout<<"Logout feito com sucesso!"<<std::endl;
+                    Sleep(1000);
+                }
+                telaAtual = 99;
+                break;
+            case 0:
+                std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
+                exit(0);
+                break;
+            default:
+                break;
+                
+        }
+    }
+    
+    return 0;
+}
+
+int mostrarMenuPrincipal(std::vector<Cadastro>& listaAlunos, int& indiceLogado){
+    int escolhaMenu;
 
     do{
         std::cout<<"------------------------------------------------------------------------------"<<std::endl;
@@ -397,29 +520,16 @@ int main(){ // MENU PRINCIPAL - INICIAL
 
         std::cout<<"0 - Sair"<<std::endl;
         std::cin>>escolhaMenu;
+        std::cin.ignore(1000, '\n');
 
         switch(escolhaMenu){
             case 1:
-                cursosDisponiveis();
-                break;
+                return 1;
             case 2: 
-                if(indiceLogado == -1){
-                    listaAlunos.push_back(cadastroPessoaEndereco()); // aqui já faz o cadastro e já coloca dentro do vector
-                    std::cout<<"Total de Alunos no sistema: "<<listaAlunos.size()<<std::endl; // só pra ver se deu tudo certo mesmo
-                }else{
-                    std::cout<<"Área de matrículas em andamanto!"<<std::endl;
-                }
-                break;
+                return 2;
             case 3:
-                if(indiceLogado == -1){
-                    indiceLogado = realizarLogin(listaAlunos); // bora tentar logar
-                }else{
-                    indiceLogado = -1;
-                    std::cout<<"Logout feito com sucesso!"<<std::endl;
-                }
-                break;
+                return 3;
             case 0:
-                std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
                 return 0;
             default:
                 std::cout<<"Número Inválido!"<<std::endl;
@@ -427,108 +537,58 @@ int main(){ // MENU PRINCIPAL - INICIAL
         }
     }while(escolhaMenu != 0);
 
-    return 0;
+    return 99;
 }
 
-int cursosDisponiveis(){ // MENU COM OS CURSOS
+int cursosDisponiveis(std::vector<Curso>& listaCursos, std::vector<Cadastro>& listaAlunos, int& indiceLogado){ // MENU COM OS CURSOS
     int escolhaMenuCursos;
 
     do{
         std::cout<<"------------------------------------------------------------------------------"<<std::endl;
         std::cout<<"Claro! Vamos verificar os cursos disponíveis: "<<std::endl;
         std::cout<<"Presenciais: "<<std::endl;
-        std::cout<<"1 - Técnico em Desenvolvimento de Sistemas"<<std::endl;
-        std::cout<<"2 - Técnico em Enfermagem"<<std::endl;
-        std::cout<<"3 - Técnico em Modelagem do Vestuário"<<std::endl;
+
+        for(int i = 0; i < listaCursos.size(); i++){
+            if(listaCursos[i].tipo == "Técnico"){
+                std::cout<<listaCursos[i].id + 1<<" - Técnico em "<<listaCursos[i].nome<<std::endl;
+            }
+        }
+
         std::cout<<"Ensino a Distância: "<<std::endl;
-        std::cout<<"4 - Recursos Humanos"<<std::endl;
-        std::cout<<"5 - Logística"<<std::endl;
-        std::cout<<"6 - Contabilidade"<<std::endl;
-        std::cout<<"7 - Transações Mobiliares"<<std::endl<<std::endl;
+        for(int i = 0; i < listaCursos.size(); i++){
+            if(listaCursos[i].tipo == "EAD"){
+                std::cout<<listaCursos[i].id + 1<<" - "<<listaCursos[i].nome<<std::endl;
+            }
+        }
+
         std::cout<<"Tem algum curso que te interessou? Escolha um número para verificar o curso ou escolha uma das opções abaixo:"<<std::endl;
-        std::cout<<"9 - Menu Principal"<<std::endl;
+        std::cout<<"99 - Menu Principal"<<std::endl;
         std::cout<<"0 - Sair"<<std::endl;
         std::cout<<"------------------------------------------------------------------------------"<<std::endl;
         std::cin>>escolhaMenuCursos;
+        std::cin.ignore(1000, '\n');
 
-        switch (escolhaMenuCursos){
-            case 1:
-                std::cout<<"Curso Técnico em Desenvolvimento de Sistemas!"<<std::endl;
-                std::cout<<"Um curso contendo 1.216 horas totais, com turmas disponíveis de SEG a SEX, das 19h às 22h;"<<std::endl;
-                std::cout<<"Docente responsável pelo curso é o Ilustre Mestre Eduardo, uma pessoa Jovial e de muito charme!"<<std::endl;
-                std::cout<<"O custo do curso hoje está saindo por R$ 14.405,49, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                menuSelecaoCurso(1);
-                return 1;
-            case 2:
-                std::cout<<"Curso Técnico em Enfermagem!"<<std::endl;
-                std::cout<<"Um curso contendo 1.600 horas totais, com turmas disponíveis de SEG a SEX, das 19h às 22h ou das 09h às 12h"<<std::endl;
-                std::cout<<"Docentes responsáveis pelo curso são: a Carol e a Thamise!"<<std::endl;
-                std::cout<<"O custo do curso hoje está saindo por R$ 15.278,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                menuSelecaoCurso(2);
-                return 2;
-            case 3:
-                std::cout<<"Curso Técnico em Modelagem do Vestuário!"<<std::endl;
-                std::cout<<"Um curso contendo 800 horas totais, com turmas disponíveis em 2 escalas, escala 1: SEG, QUA e SEX, das 19h às 22h. Escala 2: TER e SEX das 19h às 22h"<<std::endl;
-                std::cout<<"Docentes responsáveis pelo curso são: a Natália e o Ramon!"<<std::endl;
-                std::cout<<"O custo do curso hoje está saindo por R$ 14.844,79, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                menuSelecaoCurso(3);
-                return 3;
-            case 4:
-                std::cout<<"Curso EAD de Recursos Humanos!"<<std::endl;
-                std::cout<<"Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!"<<std::endl;
-                std::cout<<"Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!"<<std::endl;
-                std::cout<<"O custo do curso hoje está saindo por R$ 3.355,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                menuSelecaoCurso(4);
-                return 4;
-            case 5:
-                std::cout<<"Curso EAD de Logística!"<<std::endl;
-                std::cout<<"Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!"<<std::endl;
-                std::cout<<"Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!"<<std::endl;
-                std::cout<<"O custo do curso hoje está saindo por R$ 3.751,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                menuSelecaoCurso(5);
-                return 5;
-            case 6:
-                std::cout<<"Curso EAD de Contabilidade!"<<std::endl;
-                std::cout<<"Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!"<<std::endl;
-                std::cout<<"Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!"<<std::endl;
-                std::cout<<"O custo do curso hoje está saindo por R$ 3.355,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                menuSelecaoCurso(6);
-                return 6;
-            case 7:
-                std::cout<<"Curso EAD de Transações Mobiliares!"<<std::endl;
-                std::cout<<"Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!"<<std::endl;
-                std::cout<<"Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!"<<std::endl;
-                std::cout<<"O custo do curso hoje está saindo por R$ 3.157,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                menuSelecaoCurso(7);
-                return 7;
-            case 9:
-                return 9;
-            case 0:
-                std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
-                return 0;
-            default:
-                std::cout<<"Número Inválido!"<<std::endl;
-                break;
+        if(escolhaMenuCursos == 99) return 99;
+        if(escolhaMenuCursos == 0) return 0;
+
+        if(escolhaMenuCursos >= 1 && escolhaMenuCursos <= listaCursos.size()){
+            int indiceCursoEscolhido = escolhaMenuCursos - 1;
+
+            std::cout<<"Detalhes do curso: "<<std::endl;
+            std::cout<<"Tipo: "<<listaCursos[indiceCursoEscolhido].tipo<<std::endl;
+            std::cout<<"Nome: "<<listaCursos[indiceCursoEscolhido].nome<<std::endl;
+            std::cout<<"Carga horaria / horarios: "<<listaCursos[indiceCursoEscolhido].cargaHoraria<<std::endl;
+            std::cout<<"Docente responsável: "<<listaCursos[indiceCursoEscolhido].docente<<std::endl;
+            std::cout<<"Valor: "<<listaCursos[indiceCursoEscolhido].valor<<" reais."<<std::endl;
+            return menuSelecaoCurso(listaCursos, listaAlunos, indiceLogado, indiceCursoEscolhido);
         }
-
-    }while(true);
+    }while(escolhaMenuCursos!=0);
     
-    return 0;
+    return 1;
 }
 
-int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO CURSO
+int menuSelecaoCurso(std::vector<Curso>& listaCursos, std::vector<Cadastro>& listaAlunos, int& indiceLogado, int indiceCursoEscolhido){ // OPÇÕES DE MENU - MATRICULAR NO CURSO
     int escolhaMenuSelecao;
-
-    float valoresCurso[7];
-    valoresCurso[0] = 14405.49;
-    valoresCurso[1] = 15278.00;
-    valoresCurso[2] = 14844.79;
-    valoresCurso[3] = 3355.00;
-    valoresCurso[4] = 3751.00;
-    valoresCurso[5] = 3355.00;
-    valoresCurso[6] = 3157.00;
-
-    valoresCurso[(cursoSelecionado - 1)]; // usar para puxar o valor, provavelmente levar esse dado para a matricula do curso
 
     do{
         std::cout<<"Escolha uma das opções abaixo para continuar"<<std::endl;
@@ -538,29 +598,137 @@ int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO 
         std::cout<<"0 - Sair"<<std::endl;
         std::cout<<"------------------------------------------------------------------------------"<<std::endl;
         std::cin>>escolhaMenuSelecao;
+        std::cin.ignore(1000, '\n');
                     
         switch (escolhaMenuSelecao){
             case 1:
-                //matricularCurso();
+                return matricularCurso(listaCursos, listaAlunos, indiceLogado, indiceCursoEscolhido);
                 break;
             case 8:
-                cursosDisponiveis();
-                return 8;
+                return 1;
             case 9:
-                return 9;
+                return 99;
             case 0:
-                std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
                 return 0;
             default:
                 std::cout<<"Número Inválido!"<<std::endl;
-                break;
+            return 1;
         }
-    }while(true);
+    }while(escolhaMenuSelecao != 0);
 
-    return 0;
 }
 
-int realizarLogin(std::vector<Cadastro>& listaAlunos){
+int matricularCurso(std::vector<Curso>& listaCursos, std::vector<Cadastro>& listaAlunos, int& indiceLogado, int indiceCursoEscolhido){
+    int op;
+    int opPagamento;
+    bool matriculado = false;
+
+    do{
+        if(indiceLogado != -1){
+            std::cout<<"Você deseja se matricular no Curso "<<listaCursos[indiceCursoEscolhido].tipo<<" - "<<listaCursos[indiceCursoEscolhido].nome<<"."<<std::endl;
+            std::cout<<"Com o usuário logado? ("<<listaAlunos[indiceLogado].dadosAluno.nomeCompleto<<")"<<std::endl;
+            std::cout<<"1 - Sim, continuar"<<std::endl;
+            std::cout<<"2 - Não, outro aluno"<<std::endl;
+            std::cout<<"8 - Escolher outro curso"<<std::endl;
+            std::cout<<"9 - Voltar ao menu principal"<<std::endl;
+            std::cout<<"0 - Sair"<<std::endl;
+        }else{
+            std::cout<<"Para se matricular no Curso "<<listaCursos[indiceCursoEscolhido].tipo<<" - "<<listaCursos[indiceCursoEscolhido].nome<<", você precisa de uma conta em nosso sistema."<<std::endl;
+            std::cout<<"1 - Cadastrar"<<std::endl;
+            std::cout<<"2 - Fazer Login"<<std::endl;
+            std::cout<<"8 - Escolher outro curso"<<std::endl;
+            std::cout<<"9 - Voltar ao menu principal"<<std::endl;
+            std::cout<<"0 - Sair"<<std::endl;
+        }
+        
+        std::cin>>op;
+        std::cin.ignore(1000, '\n');
+
+        switch(op){
+            case 1:
+                if(indiceLogado != -1){
+                    std::cout<<"O Curso "<<listaCursos[indiceCursoEscolhido].tipo<<" - "<<listaCursos[indiceCursoEscolhido].nome<<", está saindo por um total de "<<listaCursos[indiceCursoEscolhido].valor<<" reais."<<std::endl;
+                    std::cout<<"Nas formas de pagamento disponíveis, fica pelos valores:"<<std::endl;
+                    formasDePagamento(listaCursos[indiceCursoEscolhido].valor);
+                    std::cout<<"De que forma seria o pagamento? Escolha uma das opções acima: "<<std::endl;
+                    std::cin>>opPagamento;
+                    std::cin.ignore(1000, '\n');
+                    
+                        if(opPagamento >= 1 && opPagamento <= 5){
+                            listaAlunos[indiceLogado].minhasMatriculas.push_back({listaCursos[indiceCursoEscolhido]});
+                            std::cout<<"Curso matriculado com sucesso!"<<std::endl;
+                            return matriculado = true;
+                        }else{
+                            switch(opPagamento){
+                                case 8:
+                                    return 1;
+                                case 9:
+                                    return 99;
+                                case 0:
+                                    return 0;
+                                default:
+                                    return 99;
+                            }
+                        }
+                }else{
+                    listaAlunos.push_back(cadastroPessoaEndereco());
+                    indiceLogado = listaAlunos.size() - 1; // Já vamos logar o mano que criou a conta ai
+                }
+            case 2:
+                if(indiceLogado == -1){
+                    indiceLogado = realizarLogin(listaAlunos); // bora tentar logar
+                }else{
+                    indiceLogado = -1;
+                    std::cout<<"Logout feito com sucesso!"<<std::endl;
+                }
+                break;
+            case 8:
+                return 1;
+                break;
+            case 9:
+                return 99;
+                break;
+            case 0:
+                return 0;
+                break;
+            default:
+                break;
+        }
+    }while(!matriculado);
+    return 99;
+}
+
+void formasDePagamento(int valor){
+    std::cout<<"Valor inteiro do curso: "<<valor<<std::endl;
+    std::cout<<"1 - A vista: "<<valor * 0.9<<" reais, 10% de desconto (Pix, Dinheiro ou Débito)"<<std::endl;
+    std::cout<<"2 - Parcelamento no cartão: "<<valor * 0.94<<" reais, 6% de desconto, parcelas cfe. bandeira do cartão."<<std::endl;
+    std::cout<<"Descontos de parceiros: "<<std::endl;
+    std::cout<<"3 - "<<valor * 0.9<<" reais, 10% de desconto (SESC)"<<std::endl;
+    std::cout<<"4 - "<<valor * 0.85<<" reais, 15% de desconto (VIVO, SICRED, UNIMED, DOCTOR CLIN)"<<std::endl;
+    std::cout<<"5 - "<<valor * 0.8<<" reais, 20% de desconto (SINDILOJAS)"<<std::endl;
+    std::cout<<"8 - Escolher outro curso"<<std::endl;
+    std::cout<<"9 - Voltar ao menu principal"<<std::endl;
+    std::cout<<"0 - Sair"<<std::endl;
+}
+
+void verMinhasMatriculas(Cadastro& aluno) {
+    system("cls");
+
+    std::cout<<"Minhas Matrículas: "<<std::endl;
+    
+    if(aluno.minhasMatriculas.empty()){
+        std::cout << "Você ainda não é matrículado em nenhum curso." << std::endl;
+    }else{
+        for(int i = 0; i < aluno.minhasMatriculas.size(); i++){
+            std::cout<< i + 1 << " - " << aluno.minhasMatriculas[i].nome << " (" << aluno.minhasMatriculas[i].tipo << ")" << std::endl;
+        }
+    }
+    std::cout<<"Pressione qualquer tecla para voltar.";
+    std::cin.ignore(); // Limpa qualquer sobra do buffer
+    std::cin.get();    // Espera o caractere do Enter
+}
+
+int realizarLogin(std::vector<Cadastro>& listaAlunos){ // esse "&" é para a função "referenciar" o vector real, para não clonar ele, dessa forma, fica mais agil, e qualquer alteração, será feita lá também
     std::string userDigitado, senhaDigitada;
     bool logou = false;
 
@@ -569,8 +737,10 @@ int realizarLogin(std::vector<Cadastro>& listaAlunos){
         std::cout<<"Area de Login"<<std::endl;
         std::cout<<"Usuário (CPF): "<<std::endl;
         std::cin>>userDigitado;
+        std::cin.ignore(1000, '\n');
         std::cout<<"Senha (Data): "<<std::endl;
         std::cin>>senhaDigitada;
+        std::cin.ignore(1000, '\n');
 
         for(int i = 0; i < listaAlunos.size(); i++){
             if (listaAlunos[i].usuario == userDigitado && listaAlunos[i].senha == senhaDigitada){
@@ -589,6 +759,7 @@ int realizarLogin(std::vector<Cadastro>& listaAlunos){
         std::cout<<"Selecione uma opção para continuar"<<std::endl;
         int op;
         std::cin>>op;
+        std::cin.ignore(1000, '\n');
         if(op == 2) return -1;
     }while(!logou);
 
