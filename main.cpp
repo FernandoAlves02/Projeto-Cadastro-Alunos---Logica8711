@@ -5,9 +5,13 @@
 #include<ctime> // lib para pegar o tempo do computador
 #include<vector> // bora guardar esses cadastros
 
+struct Pessoa;
+struct Endereco;
+struct Cadastro;
 int main();
 int menuSelecaoCurso(int cursoSelecionado);
 int cursosDisponiveis();
+int realizarLogin(std::vector<Cadastro>& listaAlunos);
 std::string limparString(std::string cpf);
 bool validadorCPF(std::string cpfLimpo);
 bool validadorEmail(std::string email);
@@ -175,11 +179,15 @@ struct Endereco cadastrarEndereco(std::string tipoPessoa){
         std::getline(std::cin>>std::ws, e.cep);
         std::string cepLimpo = limparString(e.cep);
 
-        if(cepLimpo.length() == 8){
+        if(cepLimpo.empty()){
+            std::cout<<"CEP não pode ficar vazio!"<<std::endl;
+        }else if(cepLimpo.length() != 8){
+            std::cout<<"CEP inválido! tente novamente!"<<std::endl;
+        }else{
             std::cout<<"CEP cadastrado com sucesso!"<<std::endl;
             std::cout<<"------------------------------------------------------------------------------"<<std::endl;
             valido = true;
-        }
+            }
     }while(!valido);
 
     // Complemento
@@ -361,6 +369,7 @@ int main(){ // MENU PRINCIPAL - INICIAL
     SetConsoleCP(CP_UTF8);
     std::vector<Cadastro> listaAlunos; // bem seguro, eu sei
     int escolhaMenu;
+    int indiceLogado = -1; // usar para verificar qual usuario está logado, por padrão "-1", ninguem logado
 
     do{
         std::cout<<"------------------------------------------------------------------------------"<<std::endl;
@@ -377,7 +386,10 @@ int main(){ // MENU PRINCIPAL - INICIAL
                 std::cout<<"Total de Alunos no sistema: "<<listaAlunos.size()<<std::endl; // só pra ver se deu tudo certo mesmo
                 break;
             case 3:
-                std::cout<<"Função de Login ainda não implementada!"<<std::endl;
+                indiceLogado = realizarLogin(listaAlunos); // bora tentar logar
+                if(indiceLogado != -1){ // se for != -1 quer dizer que alguem ta logado
+                    std::cout<<"Sessão ativa para: "<<listaAlunos[indiceLogado].dadosAluno.nomeCompleto<<std::endl;
+                }
                 break;
             case 0:
                 std::cout<<"Obrigado pela sua atenção! Até mais."<<std::endl;
@@ -446,7 +458,7 @@ int cursosDisponiveis(){ // MENU COM OS CURSOS
                 std::cout<<"Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!"<<std::endl;
                 std::cout<<"Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!"<<std::endl;
                 std::cout<<"O custo do curso hoje está saindo por R$ 3.751,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
-                <menuSelecaoCurso(5);
+                menuSelecaoCurso(5);
                 return 5;
             case 6:
                 std::cout<<"Curso EAD de Contabilidade!"<<std::endl;
@@ -454,7 +466,7 @@ int cursosDisponiveis(){ // MENU COM OS CURSOS
                 std::cout<<"Docentes responsáveis pelo curso sendo um grupo de especialistas selecionados a dedo!"<<std::endl;
                 std::cout<<"O custo do curso hoje está saindo por R$ 3.355,00, tendo opções de desconto conforme forma de pagamento."<<std::endl;
                 menuSelecaoCurso(6);
-                return 5;
+                return 6;
             case 7:
                 std::cout<<"Curso EAD de Transações Mobiliares!"<<std::endl;
                 std::cout<<"Um curso contendo 800 horas totais, com um tempo de formação de 12 meses, você faz o seu próprio horário!"<<std::endl;
@@ -520,3 +532,41 @@ int menuSelecaoCurso(int cursoSelecionado){ // OPÇÕES DE MENU - MATRICULAR NO 
 
     return 0;
 }
+
+int realizarLogin(std::vector<Cadastro>& listaAlunos){
+    std::string userDigitado, senhaDigitada;
+    bool logou = false;
+
+    do{
+        std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+        std::cout<<"Area de Login"<<std::endl;
+        std::cout<<"Usuário (CPF): "<<std::endl;
+        std::cin>>userDigitado;
+        std::cout<<"Senha (Data): "<<std::endl;
+        std::cin>>senhaDigitada;
+
+        for(int i = 0; i < listaAlunos.size(); i++){
+            if (listaAlunos[i].usuario == userDigitado && listaAlunos[i].senha == senhaDigitada){
+                
+                std::string nomeCompleto = listaAlunos[i].dadosAluno.nomeCompleto;
+                size_t posEspaco = nomeCompleto.find(' '); // descobre o primeiro espaço
+                std::string primeiroNome = nomeCompleto.substr(0, posEspaco); // recorta o resto da string, ficando somente antes da posição do espaço
+                std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+                std::cout<<"Usuário logado com sucesso! Seja bem vindo, "<<primeiroNome<<"!"<<std::endl;
+                logou = true;
+                return i;
+            }
+        }
+
+        std::cout<<"------------------------------------------------------------------------------"<<std::endl;
+        std::cout<<"Usuário ou senha incorretos!"<<std::endl;
+        std::cout<<"1 - Tentar novamente"<<std::endl;
+        std::cout<<"2 - Voltar ao Menu Inicial"<<std::endl;
+        std::cout<<"Selecione uma opção para continuar"<<std::endl;
+        int op;
+        std::cin>>op;
+        if(op == 2) return -1;
+    }while(!logou);
+
+    return -1;
+};
