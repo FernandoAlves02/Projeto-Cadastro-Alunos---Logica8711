@@ -13,6 +13,7 @@ int menuSelecaoCurso(int cursoSelecionado);
 int cursosDisponiveis();
 int realizarLogin(std::vector<Cadastro>& listaAlunos);
 std::string limparString(std::string cpf);
+std::string primeiroNome(std::string nomeCompleto);
 bool validadorCPF(std::string cpfLimpo);
 bool validadorEmail(std::string email);
 bool validadorDataNascimento(std::string dataNascimento);
@@ -69,16 +70,13 @@ struct Pessoa cadastrarPessoa(std::string tipoPessoa){
             valido = true;
         }
     }while(!valido);
-    std::string nomeCompleto = p.nomeCompleto;
-    size_t posEspaco = nomeCompleto.find(' '); // descobre o primeiro espaço
-    std::string primeiroNome = nomeCompleto.substr(0, posEspaco); // recorta o resto da string, ficando somente antes da posição do espaço
 
     
     // CADASTRO CPF
     valido = false;
     do{ 
 
-        std::cout<<primeiroNome<<", para continuar, vou precisar do seu CPF! Por favor, informe o seu CPF (apenas números ou com ponto/traço): "<<std::endl;
+        std::cout<<primeiroNome(p.nomeCompleto)<<", para continuar, vou precisar do seu CPF! Por favor, informe o seu CPF (apenas números ou com ponto/traço): "<<std::endl;
         std::getline(std::cin>>std::ws, cpfDigitado); // usando getline para caso de digitar 000 000 000 00
 
         std::string cpfLimpo = limparString(cpfDigitado); // beleza, criamos uma variavel chamada de cpfLimpo, que vai receber o cpf tratado na função limparString
@@ -258,6 +256,12 @@ std::string limparString(std::string stringSuja){ // o tal do limpas, vamos usar
         }
     }
     return stringLimpa;
+}
+
+std::string primeiroNome(std::string nomeCompleto){ // CANSEI DE FICAR COPIANDO E COLANDO ESSA DESGRAMA DE CODIGO
+    size_t posEspaco = nomeCompleto.find(' '); // descobre o primeiro espaço
+    std::string primeiroNome = nomeCompleto.substr(0, posEspaco); // recorta o resto da string, ficando somente antes da posição do espaço
+    return primeiroNome;
 }
 
 bool validadorCPF(std::string cpfLimpo){ // VALIDADOR DE CPF (NUMEROS IGUAS) (DIGITO IDENTIFICADOR)
@@ -547,12 +551,9 @@ int realizarLogin(std::vector<Cadastro>& listaAlunos){
 
         for(int i = 0; i < listaAlunos.size(); i++){
             if (listaAlunos[i].usuario == userDigitado && listaAlunos[i].senha == senhaDigitada){
-                
-                std::string nomeCompleto = listaAlunos[i].dadosAluno.nomeCompleto;
-                size_t posEspaco = nomeCompleto.find(' '); // descobre o primeiro espaço
-                std::string primeiroNome = nomeCompleto.substr(0, posEspaco); // recorta o resto da string, ficando somente antes da posição do espaço
+
                 std::cout<<"------------------------------------------------------------------------------"<<std::endl;
-                std::cout<<"Usuário logado com sucesso! Seja bem vindo, "<<primeiroNome<<"!"<<std::endl;
+                std::cout<<"Usuário logado com sucesso! Seja bem vindo, "<<primeiroNome(listaAlunos[i].dadosAluno.nomeCompleto)<<"!"<<std::endl;
                 logou = true;
                 return i;
             }
