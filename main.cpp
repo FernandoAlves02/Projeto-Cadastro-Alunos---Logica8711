@@ -377,8 +377,25 @@ int main(){ // MENU PRINCIPAL - INICIAL
 
     do{
         std::cout<<"------------------------------------------------------------------------------"<<std::endl;
-        std::cout<<"Bem-vindo! Quem bom que escolheu o SENAC! Selecione uma opção para começar."<<std::endl;
-        std::cout<<"1 - Conhecer Cursos"<<std::endl<<"2 - Cadastrar Aluno"<<std::endl<<"3 - Logar"<<std::endl<<"0 - Sair"<<std::endl;
+
+        // Bem vindo dinâmico se a pessoa já está logada, para não ficar recebendo bem-vindo na ccara toda hora
+        if(indiceLogado == -1){
+            std::cout<<"Bem-vindo! Quem bom que escolheu o SENAC! Selecione uma opção para começar."<<std::endl;
+        }else{
+            std::cout<<"Olá! "<<primeiroNome(listaAlunos[indiceLogado].dadosAluno.nomeCompleto)<<", que bom te ver aqui novamente!"<<std::endl;
+        }
+
+        std::cout<<"1 - Conhecer Cursos"<<std::endl;
+
+        if(indiceLogado == -1){
+            std::cout<<"2 - Cadastrar Aluno"<<std::endl;
+            std::cout<<"3 - Logar"<<std::endl;
+        }else{
+            std::cout<<"2 - Minhas Matrículas"<<std::endl;
+            std::cout<<"3 - Logout"<<std::endl;
+        }
+
+        std::cout<<"0 - Sair"<<std::endl;
         std::cin>>escolhaMenu;
 
         switch(escolhaMenu){
@@ -386,13 +403,19 @@ int main(){ // MENU PRINCIPAL - INICIAL
                 cursosDisponiveis();
                 break;
             case 2: 
-                listaAlunos.push_back(cadastroPessoaEndereco()); // aqui já faz o cadastro e já coloca dentro do vector
-                std::cout<<"Total de Alunos no sistema: "<<listaAlunos.size()<<std::endl; // só pra ver se deu tudo certo mesmo
+                if(indiceLogado == -1){
+                    listaAlunos.push_back(cadastroPessoaEndereco()); // aqui já faz o cadastro e já coloca dentro do vector
+                    std::cout<<"Total de Alunos no sistema: "<<listaAlunos.size()<<std::endl; // só pra ver se deu tudo certo mesmo
+                }else{
+                    std::cout<<"Área de matrículas em andamanto!"<<std::endl;
+                }
                 break;
             case 3:
-                indiceLogado = realizarLogin(listaAlunos); // bora tentar logar
-                if(indiceLogado != -1){ // se for != -1 quer dizer que alguem ta logado
-                    std::cout<<"Sessão ativa para: "<<listaAlunos[indiceLogado].dadosAluno.nomeCompleto<<std::endl;
+                if(indiceLogado == -1){
+                    indiceLogado = realizarLogin(listaAlunos); // bora tentar logar
+                }else{
+                    indiceLogado = -1;
+                    std::cout<<"Logout feito com sucesso!"<<std::endl;
                 }
                 break;
             case 0:
